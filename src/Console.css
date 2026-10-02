@@ -1,0 +1,574 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  overflow: hidden;
+  background: #08080c;
+  color: white;
+
+  font-family:
+    "Segoe UI",
+    Arial,
+    sans-serif;
+}
+
+/* ========================================
+   FENÊTRE
+   ======================================== */
+
+.console-window {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+
+  background: #08080c;
+}
+
+/* ========================================
+   HEADER
+   ======================================== */
+
+.console-header {
+  min-height: 52px;
+  height: 52px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 14px 0 18px;
+
+  background: rgba(255, 255, 255, 0.035);
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+
+  gap: 20px;
+}
+
+/* ========================================
+   TITRE
+   ======================================== */
+
+.console-title {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  min-width: 0;
+
+  color: rgba(255, 255, 255, 0.9);
+
+  font-size: 12px;
+  font-weight: 700;
+
+  letter-spacing: 1.5px;
+
+  white-space: nowrap;
+}
+
+.console-dot {
+  width: 8px;
+  height: 8px;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background: #69e38d;
+
+  box-shadow:
+    0 0 8px rgba(105, 227, 141, 0.7);
+}
+
+.console-dot.running {
+  background: #69e38d;
+
+  box-shadow:
+    0 0 8px rgba(105, 227, 141, 0.7);
+}
+
+.console-dot.waiting {
+  background: #ffd75f;
+
+  box-shadow:
+    0 0 8px rgba(255, 215, 95, 0.6);
+}
+
+.console-status {
+  padding: 4px 7px;
+
+  border-radius: 4px;
+
+  font-size: 9px;
+
+  letter-spacing: 0.8px;
+
+  font-weight: 700;
+}
+
+.console-status.running {
+  color: #69e38d;
+
+  background: rgba(105, 227, 141, 0.08);
+}
+
+.console-status.waiting {
+  color: #ffd75f;
+
+  background: rgba(255, 215, 95, 0.08);
+}
+
+/* ========================================
+   ACTIONS
+   ======================================== */
+
+.console-actions {
+  display: flex;
+  align-items: center;
+
+  gap: 5px;
+
+  flex-shrink: 0;
+}
+
+.console-count {
+  margin-right: 7px;
+
+  color: rgba(255, 255, 255, 0.35);
+
+  font-size: 10px;
+
+  white-space: nowrap;
+}
+
+.console-button {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  border-radius: 4px;
+
+  background: rgba(255, 255, 255, 0.025);
+
+  color: rgba(255, 255, 255, 0.5);
+
+  font-size: 9px;
+  font-weight: 700;
+
+  letter-spacing: 0.7px;
+
+  padding: 6px 8px;
+
+  cursor: pointer;
+
+  transition:
+    color 0.15s ease,
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.console-button:hover {
+  color: white;
+
+  background: rgba(255, 255, 255, 0.07);
+
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.console-button.active {
+  color: #69e38d;
+
+  background: rgba(105, 227, 141, 0.08);
+
+  border-color: rgba(105, 227, 141, 0.2);
+}
+
+.console-button.active.pause {
+  color: #ffd75f;
+
+  background: rgba(255, 215, 95, 0.08);
+
+  border-color: rgba(255, 215, 95, 0.2);
+}
+
+.console-button.clear:hover {
+  color: #ff7373;
+
+  background: rgba(255, 115, 115, 0.08);
+
+  border-color: rgba(255, 115, 115, 0.2);
+}
+
+/* ========================================
+   BARRE OUTILS
+   ======================================== */
+
+.console-toolbar {
+  min-height: 44px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  padding: 7px 14px;
+
+  background: rgba(255, 255, 255, 0.018);
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ========================================
+   RECHERCHE
+   ======================================== */
+
+.console-search {
+  width: 320px;
+  max-width: 45%;
+
+  height: 29px;
+
+  display: flex;
+  align-items: center;
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  border-radius: 5px;
+
+  background: rgba(0, 0, 0, 0.25);
+
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.console-search:focus-within {
+  border-color: rgba(255, 255, 255, 0.18);
+
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.console-search-icon {
+  padding-left: 9px;
+
+  color: rgba(255, 255, 255, 0.35);
+
+  font-size: 11px;
+
+  user-select: none;
+}
+
+.console-search input {
+  flex: 1;
+
+  min-width: 0;
+
+  height: 100%;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+
+  color: rgba(255, 255, 255, 0.85);
+
+  font-family:
+    "Segoe UI",
+    Arial,
+    sans-serif;
+
+  font-size: 11px;
+
+  padding: 0 8px;
+}
+
+.console-search input::placeholder {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.console-search-clear {
+  width: 28px;
+  height: 100%;
+
+  border: none;
+
+  background: transparent;
+
+  color: rgba(255, 255, 255, 0.3);
+
+  font-size: 18px;
+
+  line-height: 1;
+
+  cursor: pointer;
+}
+
+.console-search-clear:hover {
+  color: white;
+}
+
+/* ========================================
+   LÉGENDE
+   ======================================== */
+
+.console-toolbar-status {
+  display: flex;
+  align-items: center;
+
+  gap: 13px;
+
+  flex-shrink: 0;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+
+  gap: 5px;
+
+  color: rgba(255, 255, 255, 0.3);
+
+  font-size: 8px;
+  font-weight: 700;
+
+  letter-spacing: 0.7px;
+}
+
+.status-dot {
+  width: 5px;
+  height: 5px;
+
+  border-radius: 50%;
+}
+
+.status-dot.white {
+  background: #ffffff;
+
+  box-shadow:
+    0 0 5px rgba(255, 255, 255, 0.4);
+}
+
+.status-dot.yellow {
+  background: #ffd75f;
+
+  box-shadow:
+    0 0 5px rgba(255, 215, 95, 0.5);
+}
+
+.status-dot.red {
+  background: #ff7373;
+
+  box-shadow:
+    0 0 5px rgba(255, 115, 115, 0.5);
+}
+
+/* ========================================
+   CORPS DE LA CONSOLE
+   ======================================== */
+
+.console-body {
+  flex: 1;
+
+  min-height: 0;
+
+  overflow-y: auto;
+
+  padding: 14px 16px;
+
+  font-family:
+    "Cascadia Mono",
+    "Cascadia Code",
+    "Consolas",
+    "Courier New",
+    monospace;
+
+  font-size: 12px;
+
+  line-height: 1.65;
+
+  color: rgba(255, 255, 255, 0.82);
+
+  scrollbar-width: thin;
+
+  scrollbar-color:
+    rgba(255, 255, 255, 0.18)
+    transparent;
+}
+
+/* ========================================
+   SCROLLBAR
+   ======================================== */
+
+.console-body::-webkit-scrollbar {
+  width: 7px;
+}
+
+.console-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.console-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.16);
+
+  border-radius: 4px;
+}
+
+.console-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* ========================================
+   LIGNES
+   ======================================== */
+
+.console-line {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 10px;
+
+  min-height: 20px;
+
+  white-space: pre-wrap;
+
+  word-break: break-word;
+}
+
+.console-prefix {
+  flex-shrink: 0;
+
+  user-select: none;
+
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.console-message {
+  flex: 1;
+
+  min-width: 0;
+}
+
+/* ========================================
+   BLANC — MINECRAFT
+   ======================================== */
+
+.console-line.normal {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.console-line.normal .console-prefix {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* ========================================
+   JAUNE — INFORMATIONS
+   ======================================== */
+
+.console-line.info {
+  color: #ffd75f;
+}
+
+.console-line.info .console-prefix {
+  color: #ffbf3f;
+}
+
+/* ========================================
+   ROUGE — ERREURS
+   ======================================== */
+
+.console-line.error {
+  color: #ff7373;
+}
+
+.console-line.error .console-prefix {
+  color: #ff4d4d;
+}
+
+/* ========================================
+   CONSOLE VIDE
+   ======================================== */
+
+.console-empty {
+  color: rgba(255, 255, 255, 0.3);
+
+  font-style: italic;
+}
+
+/* ========================================
+   PETITES FENÊTRES
+   ======================================== */
+
+@media (max-width: 850px) {
+  .console-header {
+    padding-left: 12px;
+    padding-right: 10px;
+
+    gap: 10px;
+  }
+
+  .console-status {
+    display: none;
+  }
+
+  .console-count {
+    display: none;
+  }
+
+  .console-button {
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+
+  .console-toolbar-status {
+    display: none;
+  }
+
+  .console-search {
+    width: 100%;
+    max-width: none;
+  }
+}
+.console-system-info {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  color: #a0a0a0;
+  font-size: 12px;
+  font-family: monospace;
+}
+
+.console-system-info strong {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.console-system-info strong.running {
+  color: #2eaf62;
+}
+
+.console-system-info strong.waiting {
+  color: #e0e0e0;
+}
+
+@media (max-width: 750px) {
+  .console-system-info {
+    flex-wrap: wrap;
+    gap: 10px 18px;
+  }
+}
