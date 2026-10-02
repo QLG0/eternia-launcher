@@ -44,6 +44,9 @@
   "bundle": {
     "active": true,
     "targets": "all",
+
+    "createUpdaterArtifacts": true,
+
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -51,8 +54,21 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
+
     "android": {
       "debugApplicationIdSuffix": ".debug"
+    }
+  },
+
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDc0NkYzMDA1RUZCRjRFNjMKUldSalRyL3ZCVEJ2ZE42NldYT01CNmlBN2xUeXl2bWNEc1NGWlNuL1p2V2NoOUxQd04ySVNjQzIK",
+      "endpoints": [
+        "https://github.com/QLG0/eternia-launcher/releases/latest/download/latest.json"
+      ],
+      "windows": {
+        "installMode": "passive"
+      }
     }
   }
 }

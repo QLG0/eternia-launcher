@@ -8,11 +8,7 @@
 // IMPORTANT : ne pas supprimer cette ligne.
 //
 
-#![cfg_attr(
-    not(debug_assertions),
-    windows_subsystem = "windows"
-)]
-
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 // ============================================================
 // POINT D'ENTRÉE DE L'APPLICATION
@@ -26,7 +22,6 @@
 //
 
 fn main() {
-
     // --------------------------------------------------------
     // Démarrage du launcher Eternia
     // --------------------------------------------------------

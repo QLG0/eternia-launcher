@@ -3,25 +3,22 @@
 // ============================================================
 
 mod auth;
-mod session;
-mod launcher;
-mod minecraft;
 mod download;
-mod minecraft_manifest;
 mod fabric;
-mod libraries;
 mod java;
-mod native;
+mod launcher;
+mod libraries;
+mod minecraft;
+mod minecraft_manifest;
 mod mods;
+mod native;
+mod session;
 
 // ============================================================
 // IMPORTS
 // ============================================================
 
-use session::{
-    load_accounts_from_disk,
-    SessionState,
-};
+use session::{load_accounts_from_disk, SessionState};
 
 // ============================================================
 // DÉTECTION DE LA RAM DU PC
@@ -66,18 +63,14 @@ fn get_system_ram() -> Result<u64, String> {
     //
     // octets -> Ko -> Mo
 
-    let total_memory_mb =
-        system.total_memory() / 1024 / 1024;
+    let total_memory_mb = system.total_memory() / 1024 / 1024;
 
     // --------------------------------------------------------
     // Vérification
     // --------------------------------------------------------
 
     if total_memory_mb == 0 {
-        return Err(
-            "Impossible de détecter la mémoire RAM du PC."
-                .to_string(),
-        );
+        return Err("Impossible de détecter la mémoire RAM du PC.".to_string());
     }
 
     Ok(total_memory_mb)
@@ -95,8 +88,7 @@ fn open_minecraft_dir() -> Result<(), String> {
     // Récupération du dossier Minecraft
     // --------------------------------------------------------
 
-    let minecraft_dir =
-        minecraft::get_minecraft_dir()?;
+    let minecraft_dir = minecraft::get_minecraft_dir()?;
 
     // --------------------------------------------------------
     // Ouverture de l'Explorateur Windows
@@ -105,12 +97,7 @@ fn open_minecraft_dir() -> Result<(), String> {
     std::process::Command::new("explorer.exe")
         .arg(&minecraft_dir)
         .spawn()
-        .map_err(|error| {
-            format!(
-                "Impossible d'ouvrir le dossier Minecraft : {}",
-                error
-            )
-        })?;
+        .map_err(|error| format!("Impossible d'ouvrir le dossier Minecraft : {}", error))?;
 
     Ok(())
 }
@@ -121,13 +108,11 @@ fn open_minecraft_dir() -> Result<(), String> {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-
     // ========================================================
     // CRÉATION DE L'ÉTAT DE SESSION
     // ========================================================
 
-    let session_state =
-        SessionState::new();
+    let session_state = SessionState::new();
 
     // ========================================================
     // INITIALISATION DE L'ANNULATION DE CONNEXION
@@ -138,23 +123,17 @@ pub fn run() {
 
     session_state
         .cancel_login
-        .store(
-            false,
-            std::sync::atomic::Ordering::SeqCst,
-        );
+        .store(false, std::sync::atomic::Ordering::SeqCst);
 
     // ========================================================
     // CHARGEMENT DES COMPTES SAUVEGARDÉS
     // ========================================================
 
     match load_accounts_from_disk() {
-
         // ----------------------------------------------------
         // COMPTES CHARGÉS AVEC SUCCÈS
         // ----------------------------------------------------
-
         Ok(accounts_file) => {
-
             println!();
             println!("========================================");
             println!("          COMPTES ETERNIA");
@@ -165,39 +144,22 @@ pub fn run() {
             // ------------------------------------------------
 
             if accounts_file.accounts.is_empty() {
+                println!("Aucun compte sauvegardé.");
 
-                println!(
-                    "Aucun compte sauvegardé."
-                );
-
-                println!(
-                    "Connexion Microsoft nécessaire."
-                );
-
+                println!("Connexion Microsoft nécessaire.");
             }
-
             // ------------------------------------------------
             // DES COMPTES SONT DISPONIBLES
             // ------------------------------------------------
-
             else {
-
-                println!(
-                    "{} compte(s) sauvegardé(s).",
-                    accounts_file.accounts.len()
-                );
+                println!("{} compte(s) sauvegardé(s).", accounts_file.accounts.len());
 
                 // --------------------------------------------
                 // AFFICHAGE DES COMPTES DISPONIBLES
                 // --------------------------------------------
 
                 for account in &accounts_file.accounts {
-
-                    println!(
-                        "- {} ({})",
-                        account.minecraft_name,
-                        account.minecraft_uuid
-                    );
+                    println!("- {} ({})", account.minecraft_name, account.minecraft_uuid);
                 }
 
                 // --------------------------------------------
@@ -209,46 +171,30 @@ pub fn run() {
                 // Si aucun UUID sélectionné n'est disponible,
                 // on prend automatiquement le premier compte.
 
-                let selected =
-                    accounts_file
-                        .selected_uuid
-                        .as_deref()
-                        .and_then(|uuid| {
-
-                            accounts_file
-                                .accounts
-                                .iter()
-                                .find(|account| {
-                                    account.minecraft_uuid
-                                        == uuid
-                                })
-                        })
-                        .or_else(|| {
-                            accounts_file
-                                .accounts
-                                .first()
-                        });
+                let selected = accounts_file
+                    .selected_uuid
+                    .as_deref()
+                    .and_then(|uuid| {
+                        accounts_file
+                            .accounts
+                            .iter()
+                            .find(|account| account.minecraft_uuid == uuid)
+                    })
+                    .or_else(|| accounts_file.accounts.first());
 
                 // --------------------------------------------
                 // CHARGEMENT DU COMPTE SÉLECTIONNÉ
                 // --------------------------------------------
 
                 if let Some(account) = selected {
-
-                    println!(
-                        "Compte sélectionné : {}",
-                        account.minecraft_name
-                    );
+                    println!("Compte sélectionné : {}", account.minecraft_name);
 
                     // ----------------------------------------
                     // PLACEMENT DU COMPTE DANS LA SESSION
                     // ----------------------------------------
 
-                    if let Ok(mut session) =
-                        session_state.session.lock()
-                    {
-                        *session =
-                            Some(account.clone());
+                    if let Ok(mut session) = session_state.session.lock() {
+                        *session = Some(account.clone());
                     }
                 }
 
@@ -257,17 +203,12 @@ pub fn run() {
                 // DANS L'ÉTAT GLOBAL DU LAUNCHER
                 // --------------------------------------------
 
-                if let Ok(mut accounts) =
-                    session_state.accounts.lock()
-                {
-                    *accounts =
-                        accounts_file.accounts;
+                if let Ok(mut accounts) = session_state.accounts.lock() {
+                    *accounts = accounts_file.accounts;
                 }
             }
 
-            println!(
-                "========================================"
-            );
+            println!("========================================");
 
             println!();
         }
@@ -275,22 +216,15 @@ pub fn run() {
         // ----------------------------------------------------
         // ERREUR LORS DU CHARGEMENT DES COMPTES
         // ----------------------------------------------------
-
         Err(error) => {
-
             println!();
             println!("========================================");
             println!("       ERREUR COMPTES ETERNIA");
             println!("========================================");
 
-            println!(
-                "{}",
-                error
-            );
+            println!("{}", error);
 
-            println!(
-                "========================================"
-            );
+            println!("========================================");
 
             println!();
         }
@@ -301,120 +235,84 @@ pub fn run() {
     // ========================================================
 
     tauri::Builder::default()
-
+        .plugin(tauri_plugin_updater::Builder::new().build())
         // ====================================================
         // ÉTAT GLOBAL DU LAUNCHER
         // ====================================================
-
         // Permet aux différentes commandes Tauri
         // d'accéder à la session et aux comptes.
-
         .manage(session_state)
-
         // ====================================================
         // COMMANDES ACCESSIBLES DEPUIS REACT / TYPESCRIPT
         // ====================================================
+        .invoke_handler(tauri::generate_handler![
+            // ============================================
+            // SYSTÈME
+            // ============================================
 
-        .invoke_handler(
-            tauri::generate_handler![
-
-                // ============================================
-                // SYSTÈME
-                // ============================================
-
-                // Détection automatique de la RAM physique.
-
-                get_system_ram,
-
-                // ============================================
-                // AUTHENTIFICATION MICROSOFT
-                // ============================================
-
-                auth::microsoft_login,
-                auth::cancel_microsoft_login,
-
-                // ============================================
-                // GESTION DES SESSIONS
-                // ============================================
-
-                session::get_session,
-                session::get_accounts,
-                session::select_account,
-                session::remove_account,
-
-                // ============================================
-                // LANCEMENT DE MINECRAFT
-                // ============================================
-
-                launcher::launch_minecraft,
-                launcher::prepare_and_launch,
-                launcher::repair_installation,
-                launcher::cancel_launch,
-                launcher::stop_minecraft,
-
-                // ============================================
-                // MINECRAFT
-                // ============================================
-
-                minecraft::get_minecraft_dir,
-                open_minecraft_dir,
-
-                // ============================================
-                // MINECRAFT MANIFEST
-                // ============================================
-
-                minecraft_manifest::check_minecraft_version,
-                minecraft_manifest::install_minecraft,
-                minecraft_manifest::install_minecraft_libraries,
-                minecraft_manifest::install_minecraft_assets,
-
-                // ============================================
-                // FABRIC
-                // ============================================
-
-                fabric::install_fabric,
-
-                // ============================================
-                // LIBRAIRIES
-                // ============================================
-
-                libraries::install_libraries,
-
-                // ============================================
-                // JAVA
-                // ============================================
-
-                java::check_java,
-                java::get_java_version,
-                java::install_java,
-
-                // ============================================
-                // NATIVES WINDOWS
-                // ============================================
-
-                native::extract_natives,
-
-                // ============================================
-                // MODS ETERNIA
-                // ============================================
-
-                mods::install_eternia_mods,
-            ],
-        )
-
+            // Détection automatique de la RAM physique.
+            get_system_ram,
+            // ============================================
+            // AUTHENTIFICATION MICROSOFT
+            // ============================================
+            auth::microsoft_login,
+            auth::cancel_microsoft_login,
+            // ============================================
+            // GESTION DES SESSIONS
+            // ============================================
+            session::get_session,
+            session::get_accounts,
+            session::select_account,
+            session::remove_account,
+            // ============================================
+            // LANCEMENT DE MINECRAFT
+            // ============================================
+            launcher::launch_minecraft,
+            launcher::prepare_and_launch,
+            launcher::repair_installation,
+            launcher::cancel_launch,
+            launcher::stop_minecraft,
+            // ============================================
+            // MINECRAFT
+            // ============================================
+            minecraft::get_minecraft_dir,
+            open_minecraft_dir,
+            // ============================================
+            // MINECRAFT MANIFEST
+            // ============================================
+            minecraft_manifest::check_minecraft_version,
+            minecraft_manifest::install_minecraft,
+            minecraft_manifest::install_minecraft_libraries,
+            minecraft_manifest::install_minecraft_assets,
+            // ============================================
+            // FABRIC
+            // ============================================
+            fabric::install_fabric,
+            // ============================================
+            // LIBRAIRIES
+            // ============================================
+            libraries::install_libraries,
+            // ============================================
+            // JAVA
+            // ============================================
+            java::check_java,
+            java::get_java_version,
+            java::install_java,
+            // ============================================
+            // NATIVES WINDOWS
+            // ============================================
+            native::extract_natives,
+            // ============================================
+            // MODS ETERNIA
+            // ============================================
+            mods::install_eternia_mods,
+        ])
         // ====================================================
         // LANCEMENT DE L'APPLICATION TAURI
         // ====================================================
-
-        .run(
-            tauri::generate_context!()
-        )
-
+        .run(tauri::generate_context!())
         // ====================================================
         // GESTION D'ERREUR AU DÉMARRAGE
         // ====================================================
-
-        .expect(
-            "error while running tauri application"
-        );
+        .expect("error while running tauri application");
 }

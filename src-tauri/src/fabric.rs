@@ -87,148 +87,79 @@ pub async fn install_fabric() -> Result<String, String> {
 
     let response = reqwest::get(FABRIC_PROFILE_URL)
         .await
-        .map_err(|e| {
-            format!(
-                "Erreur récupération du profil Fabric : {}",
-                e
-            )
-        })?;
+        .map_err(|e| format!("Erreur récupération du profil Fabric : {}", e))?;
 
     if !response.status().is_success() {
-        return Err(format!(
-            "Erreur HTTP Fabric : {}",
-            response.status()
-        ));
+        return Err(format!("Erreur HTTP Fabric : {}", response.status()));
     }
 
     let json_bytes = response
         .bytes()
         .await
-        .map_err(|e| {
-            format!(
-                "Impossible de lire le profil Fabric : {}",
-                e
-            )
-        })?;
+        .map_err(|e| format!("Impossible de lire le profil Fabric : {}", e))?;
 
     // ========================================
     // 2. PARSING DU PROFIL
     // ========================================
 
-    let profile: FabricProfile =
-        serde_json::from_slice(&json_bytes)
-            .map_err(|e| {
-                format!(
-                    "Erreur lecture du profil Fabric : {}",
-                    e
-                )
-            })?;
+    let profile: FabricProfile = serde_json::from_slice(&json_bytes)
+        .map_err(|e| format!("Erreur lecture du profil Fabric : {}", e))?;
 
     println!("Profil Fabric trouvé.");
     println!("ID           : {}", profile.id);
-    println!(
-        "Minecraft    : {}",
-        profile.inherits_from
-    );
-    println!(
-        "Release time : {}",
-        profile.release_time
-    );
+    println!("Minecraft    : {}", profile.inherits_from);
+    println!("Release time : {}", profile.release_time);
     println!("Time         : {}", profile.time);
-    println!(
-        "Main class   : {}",
-        profile.main_class
-    );
+    println!("Main class   : {}", profile.main_class);
 
     if let Some(profile_type) = &profile.profile_type {
-        println!(
-            "Type         : {}",
-            profile_type
-        );
+        println!("Type         : {}", profile_type);
     }
 
-    println!(
-        "Libraries Fabric : {}",
-        profile.libraries.len()
-    );
+    println!("Libraries Fabric : {}", profile.libraries.len());
 
     // ========================================
     // 3. AFFICHAGE DES ARGUMENTS
     // ========================================
 
     if let Some(arguments) = &profile.arguments {
-        println!(
-            "Arguments game : {}",
-            arguments.game.len()
-        );
+        println!("Arguments game : {}", arguments.game.len());
 
-        println!(
-            "Arguments JVM  : {}",
-            arguments.jvm.len()
-        );
+        println!("Arguments JVM  : {}", arguments.jvm.len());
     }
 
     if let Some(jvm_arguments) = &profile.jvm_arguments {
-        println!(
-            "JVM arguments supplémentaires : {}",
-            jvm_arguments.len()
-        );
+        println!("JVM arguments supplémentaires : {}", jvm_arguments.len());
     }
 
     // ========================================
     // 4. DOSSIER .ETERNIA
     // ========================================
 
-    let minecraft_dir =
-        PathBuf::from(get_minecraft_dir()?);
+    let minecraft_dir = PathBuf::from(get_minecraft_dir()?);
 
     // ========================================
     // 5. DOSSIER FABRIC
     // ========================================
 
-    let fabric_dir = minecraft_dir
-        .join("versions")
-        .join("1.21.11-fabric");
+    let fabric_dir = minecraft_dir.join("versions").join("1.21.11-fabric");
 
     std::fs::create_dir_all(&fabric_dir)
-        .map_err(|e| {
-            format!(
-                "Impossible de créer le dossier Fabric : {}",
-                e
-            )
-        })?;
+        .map_err(|e| format!("Impossible de créer le dossier Fabric : {}", e))?;
 
     // ========================================
     // 6. SAUVEGARDE DU PROFIL
     // ========================================
 
-    let profile_path = fabric_dir
-        .join("1.21.11-fabric.json");
+    let profile_path = fabric_dir.join("1.21.11-fabric.json");
 
-    let formatted_json =
-        serde_json::to_string_pretty(&profile)
-            .map_err(|e| {
-                format!(
-                    "Impossible de formater le profil Fabric : {}",
-                    e
-                )
-            })?;
+    let formatted_json = serde_json::to_string_pretty(&profile)
+        .map_err(|e| format!("Impossible de formater le profil Fabric : {}", e))?;
 
-    std::fs::write(
-        &profile_path,
-        formatted_json,
-    )
-    .map_err(|e| {
-        format!(
-            "Impossible d'écrire le profil Fabric : {}",
-            e
-        )
-    })?;
+    std::fs::write(&profile_path, formatted_json)
+        .map_err(|e| format!("Impossible d'écrire le profil Fabric : {}", e))?;
 
-    println!(
-        "Profil Fabric enregistré : {}",
-        profile_path.display()
-    );
+    println!("Profil Fabric enregistré : {}", profile_path.display());
 
     // ========================================
     // 7. RÉSUMÉ
@@ -238,26 +169,14 @@ pub async fn install_fabric() -> Result<String, String> {
     println!("PROFIL FABRIC PRÊT POUR LE LANCEMENT");
     println!("========================================");
 
-    println!(
-        "Main class : {}",
-        profile.main_class
-    );
+    println!("Main class : {}", profile.main_class);
 
-    println!(
-        "Libraries : {}",
-        profile.libraries.len()
-    );
+    println!("Libraries : {}", profile.libraries.len());
 
     if let Some(arguments) = &profile.arguments {
-        println!(
-            "Game arguments : {}",
-            arguments.game.len()
-        );
+        println!("Game arguments : {}", arguments.game.len());
 
-        println!(
-            "JVM arguments : {}",
-            arguments.jvm.len()
-        );
+        println!("JVM arguments : {}", arguments.jvm.len());
     }
 
     println!("========================================");
@@ -266,7 +185,6 @@ pub async fn install_fabric() -> Result<String, String> {
 
     Ok(format!(
         "Fabric {} installé pour Minecraft {}.",
-        profile.id,
-        profile.inherits_from
+        profile.id, profile.inherits_from
     ))
 }

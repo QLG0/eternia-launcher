@@ -15,14 +15,8 @@ fn is_native_jar(path: &Path) -> bool {
     name.contains("natives-windows")
 }
 
-fn extract_native_jar(
-    jar_path: &Path,
-    natives_dir: &Path,
-) -> Result<usize, String> {
-    println!(
-        "Extraction native : {}",
-        jar_path.display()
-    );
+fn extract_native_jar(jar_path: &Path, natives_dir: &Path) -> Result<usize, String> {
+    println!("Extraction native : {}", jar_path.display());
 
     let file = fs::File::open(jar_path).map_err(|e| {
         format!(
@@ -62,47 +56,25 @@ fn extract_native_jar(
         let file_name = Path::new(&entry_name)
             .file_name()
             .and_then(|name| name.to_str())
-            .ok_or_else(|| {
-                format!(
-                    "Nom de DLL invalide dans {}",
-                    jar_path.display()
-                )
-            })?;
+            .ok_or_else(|| format!("Nom de DLL invalide dans {}", jar_path.display()))?;
 
         // Protection contre les chemins ../ ou absolus.
-        if file_name.contains("..")
-            || file_name.contains('/')
-            || file_name.contains('\\')
-        {
-            return Err(format!(
-                "Chemin natif dangereux détecté : {}",
-                entry_name
-            ));
+        if file_name.contains("..") || file_name.contains('/') || file_name.contains('\\') {
+            return Err(format!("Chemin natif dangereux détecté : {}", entry_name));
         }
 
         let destination = natives_dir.join(file_name);
 
         let mut data = Vec::new();
 
-        entry.read_to_end(&mut data).map_err(|e| {
-            format!(
-                "Impossible de lire {} : {}",
-                entry_name, e
-            )
-        })?;
+        entry
+            .read_to_end(&mut data)
+            .map_err(|e| format!("Impossible de lire {} : {}", entry_name, e))?;
 
-        fs::write(&destination, &data).map_err(|e| {
-            format!(
-                "Impossible d'écrire {} : {}",
-                destination.display(),
-                e
-            )
-        })?;
+        fs::write(&destination, &data)
+            .map_err(|e| format!("Impossible d'écrire {} : {}", destination.display(), e))?;
 
-        println!(
-            "  DLL extraite : {}",
-            destination.display()
-        );
+        println!("  DLL extraite : {}", destination.display());
 
         extracted += 1;
     }
@@ -110,31 +82,16 @@ fn extract_native_jar(
     Ok(extracted)
 }
 
-fn find_native_jars(
-    libraries_dir: &Path,
-) -> Result<Vec<PathBuf>, String> {
+fn find_native_jars(libraries_dir: &Path) -> Result<Vec<PathBuf>, String> {
     let mut result = Vec::new();
 
-    fn scan_dir(
-        directory: &Path,
-        result: &mut Vec<PathBuf>,
-    ) -> Result<(), String> {
-        let entries = fs::read_dir(directory).map_err(|e| {
-            format!(
-                "Impossible de lire {} : {}",
-                directory.display(),
-                e
-            )
-        })?;
+    fn scan_dir(directory: &Path, result: &mut Vec<PathBuf>) -> Result<(), String> {
+        let entries = fs::read_dir(directory)
+            .map_err(|e| format!("Impossible de lire {} : {}", directory.display(), e))?;
 
         for entry in entries {
-            let entry = entry.map_err(|e| {
-                format!(
-                    "Erreur lecture dossier {} : {}",
-                    directory.display(),
-                    e
-                )
-            })?;
+            let entry = entry
+                .map_err(|e| format!("Erreur lecture dossier {} : {}", directory.display(), e))?;
 
             let path = entry.path();
 
@@ -174,50 +131,29 @@ pub fn extract_natives() -> Result<String, String> {
         ));
     }
 
-    fs::create_dir_all(&natives_dir).map_err(|e| {
-        format!(
-            "Impossible de créer le dossier natives : {}",
-            e
-        )
-    })?;
+    fs::create_dir_all(&natives_dir)
+        .map_err(|e| format!("Impossible de créer le dossier natives : {}", e))?;
 
-    println!(
-        "Libraries : {}",
-        libraries_dir.display()
-    );
+    println!("Libraries : {}", libraries_dir.display());
 
-    println!(
-        "Natives   : {}",
-        natives_dir.display()
-    );
+    println!("Natives   : {}", natives_dir.display());
 
     let native_jars = find_native_jars(&libraries_dir)?;
 
-    println!(
-        "JAR natives Windows trouvés : {}",
-        native_jars.len()
-    );
+    println!("JAR natives Windows trouvés : {}", native_jars.len());
 
     if native_jars.is_empty() {
-        return Err(
-            "Aucun JAR natives-windows trouvé.".to_string()
-        );
+        return Err("Aucun JAR natives-windows trouvé.".to_string());
     }
 
     let mut total_dll = 0usize;
 
     for jar in native_jars {
-        total_dll += extract_native_jar(
-            &jar,
-            &natives_dir,
-        )?;
+        total_dll += extract_native_jar(&jar, &natives_dir)?;
     }
 
     println!("----------------------------------------");
-    println!(
-        "DLL extraites : {}",
-        total_dll
-    );
+    println!("DLL extraites : {}", total_dll);
     println!("========================================");
     println!("NATIVES WINDOWS PRÊTES");
     println!("========================================");
